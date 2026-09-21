@@ -1,6 +1,6 @@
 # Intro to Backend
 
-A practice backend built with Node.js, Express, MongoDB, and Mongoose.
+A full-stack notes workspace built with React, Express, MongoDB, and Mongoose.
 
 ## Requirements
 
@@ -10,10 +10,18 @@ A practice backend built with Node.js, Express, MongoDB, and Mongoose.
 
 ## Setup
 
-Install dependencies:
+Install backend dependencies from the repository root:
 
 ```bash
 npm install
+```
+
+Install frontend dependencies:
+
+```bash
+cd frontend
+npm install
+cd ..
 ```
 
 Create a `.env` file in the project root:
@@ -27,7 +35,7 @@ Do not commit `.env`; it contains database credentials.
 
 ## Run
 
-Start the server normally:
+Start the backend normally:
 
 ```bash
 npm start
@@ -40,6 +48,24 @@ npm run dev
 ```
 
 The API runs at `http://localhost:4000` by default.
+
+In a second terminal, start the frontend:
+
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend runs at `http://localhost:5173` and uses
+`VITE_API_URL=http://localhost:4000/api/v1` by default. Copy
+`frontend/.env.example` to `frontend/.env` if you need to override it.
+
+Build the frontend for production:
+
+```bash
+cd frontend
+npm run build
+```
 
 ## API Routes
 
@@ -63,6 +89,20 @@ Base URL: `http://localhost:4000/api/v1/posts`
 | GET | `/getPosts` | None |
 | PATCH | `/updatePost/:id` | Fields to update |
 | DELETE | `/deletePost/:id` | None |
+
+## Frontend structure
+
+```text
+frontend/
+├── src/
+│   ├── components/       # Navbar, theme picker, and note cards
+│   ├── pages/            # Login and dashboard views
+│   ├── services/api.js   # The only frontend module that calls fetch()
+│   ├── App.jsx           # Session and theme routing
+│   └── main.jsx          # React entry point
+├── index.html
+└── package.json
+```
 
 ## Testing with HTTPie
 

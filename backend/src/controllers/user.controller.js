@@ -3,24 +3,32 @@ import { User} from "../models/users.models.js";
 const registerUser = async (req,res) => {
     try {
         const {username, password, email} = req.body;
+        const normalizedUsername = typeof username === "string" ? username.trim().toLowerCase() : "";
+        const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
 
         //basic validation
 
-        if(!username || !password || ! email) {
+        if(!normalizedUsername || typeof password !== "string" || !password || !normalizedEmail) {
             return res.status(400).json({message: "All the fields are required!!!"})
         }
+        if (password.length < 6) {
+            return res.status(400).json({message: "Password must be at least 6 characters long."});
+        }
          //check if user already exists
-        const existingUser = await User.findOne({email: email.toLowerCase().trim()});
+        const existingUser = await User.findOne({
+            $or: [{email: normalizedEmail}, {username: normalizedUsername}]
+        });
         if (existingUser) {
-            return res.status(400).json({message: "User already exists!!!"})
+            const field = existingUser.email === normalizedEmail ? "email" : "username";
+            return res.status(409).json({message: `An account with that ${field} already exists.`})
         }
 
         //create new user
         const user = await User.create(
             {
-                username,
-                password: password.toString(),
-                email: email.toLowerCase().trim(),
+                username: normalizedUsername,
+                password,
+                email: normalizedEmail,
                 loggedIn: false,
             }
         )
@@ -36,6 +44,10 @@ const registerUser = async (req,res) => {
             }
         );
     } catch(error) {
+        if (error?.code === 11000) {
+            const field = Object.keys(error.keyPattern || {})[0] || "username";
+            return res.status(409).json({message: `An account with that ${field} already exists.`});
+        }
         res.status(500).json({message: "Internal server error!!!", error: error.message})
     }
 };
